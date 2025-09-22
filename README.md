@@ -22,14 +22,14 @@ npm run dev
 - In **SQL**, run `supabase.sql` from this repo.
 - Put keys into `.env`:
 ```
-VITE_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=YOUR_PUBLIC_ANON_KEY
+VITE_SUPABASE_URL=https://hjdsyvpfgkzzzjqbgvdl.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHN5dnBmZ2t6enpqcWJndmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NTM3NzksImV4cCI6MjA3NDAyOTc3OX0.lA7jUAuSxkvO8CQ252ydZwjEtw_NYDnoF7WH7tRMLcw
 ```
 Or set them in `index.html`:
 ```html
 <script>
-  window.SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
-  window.SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";
+  window.SUPABASE_URL = "https://hjdsyvpfgkzzzjqbgvdl.supabase.co";
+  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHN5dnBmZ2t6enpqcWJndmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NTM3NzksImV4cCI6MjA3NDAyOTc3OX0.lA7jUAuSxkvO8CQ252ydZwjEtw_NYDnoF7WH7tRMLcw";
 </script>
 ```
 
@@ -37,7 +37,7 @@ Or set them in `index.html`:
 ```bash
 npm run deploy
 ```
-The site will publish to `https://<your-username>.github.io/cute-forum` (edit `homepage` in `package.json` as needed).
+The site will publish to `https://levifite.github.io/multimedia-multiverse` (edit `homepage` in `package.json` as needed).
 
 ## License
 MIT
