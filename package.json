@@ -3,12 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://levifite.github.io/multimedia-multiverse",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npx vite build --base=/multimedia-multiverse/",
     "preview": "vite preview",
-    "predeploy": "vite build",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
@@ -17,9 +16,10 @@
     "lucide-react": "^0.468.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.4",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "eslint-plugin-react-refresh": "^0.4.9",
     "gh-pages": "^6.1.1",
     "vite": "^5.4.0"
   }
