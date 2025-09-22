@@ -28,9 +28,9 @@ const THEME = {
   accent3: "#c9b6a9",
 };
 
-// --- Supabase config (set via index.html globals or Vite env) ---
-const SUPABASE_URL = window.SUPABASE_URL || import.meta?.env?.VITE_SUPABASE_URL || "";
-const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || import.meta?.env?.VITE_SUPABASE_ANON_KEY || "";
+// --- Supabase config (set via Vite env) ---
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 export const supabase = (SUPABASE_URL && SUPABASE_ANON_KEY) ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 export const REMOTE_ENABLED = !!supabase;
 
