@@ -91,7 +91,7 @@ function Avatar({ src, name, size = 56 }) {
   );
 }
 
-function AuthModals({ show, onHide, onLogin }) {
+export function AuthModals({ show, onHide, onLogin }) {
   const [isSignup, setIsSignup] = useState(false);
   const [form, setForm] = useState({ email: '', password: '', displayName: '' });
   const [busy, setBusy] = useState(false);
