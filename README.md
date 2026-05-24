@@ -22,14 +22,14 @@ npm run dev
 - In **SQL**, run `supabase.sql` from this repo.
 - Put keys into `.env`:
 ```
-VITE_SUPABASE_URL=https://hjdsyvpfgkzzzjqbgvdl.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHN5dnBmZ2t6enpqcWJndmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NTM3NzksImV4cCI6MjA3NDAyOTc3OX0.lA7jUAuSxkvO8CQ252ydZwjEtw_NYDnoF7WH7tRMLcw
+VITE_SUPABASE_URL=YOUR_SUPABASE_URL
+VITE_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
 ```
 Or set them in `index.html`:
 ```html
 <script>
-  window.SUPABASE_URL = "https://hjdsyvpfgkzzzjqbgvdl.supabase.co";
-  window.SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqZHN5dnBmZ2t6enpqcWJndmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg0NTM3NzksImV4cCI6MjA3NDAyOTc3OX0.lA7jUAuSxkvO8CQ252ydZwjEtw_NYDnoF7WH7tRMLcw";
+  window.SUPABASE_URL = "YOUR_SUPABASE_URL";
+  window.SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
 </script>
 ```
 
