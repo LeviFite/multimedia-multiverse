@@ -409,27 +409,30 @@ function NewThreadForm({ user, onCreated }) {
 
 function ThreadsFeed() {
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // Default to true for initial load
   const [page, setPage] = useState(0);
   const pageSize = 10;
 
-  const load = async (reset=false) => {
+  const load = async (reset = false) => {
+    if (!reset) setLoading(true); // Only show loading spinner on "load more"
+
     if (!REMOTE_ENABLED) {
-      // fallback: map TOP_THREADS
       const start = reset ? 0 : rows.length;
-      const more = TOP_THREADS.slice(start, start + pageSize).map((t,i)=>({
-        id: `${start+i}`, title: t.title, body: 'Placeholder body', category: t.category, author_name: t.author, replies: t.replies, created_at: new Date().toISOString()
+      const more = TOP_THREADS.slice(start, start + pageSize).map((t, i) => ({
+        id: `${start + i}`, title: t.title, body: 'Placeholder body', category: t.category, author_name: t.author, replies: t.replies, created_at: new Date().toISOString()
       }));
       setRows(reset ? more : [...rows, ...more]);
-      if (reset) setPage(1); else setPage(page+1);
+      if (reset) setPage(1); else setPage(page + 1);
+      setLoading(false);
       return;
     }
-    setLoading(true);
+
     const { data, error } = await supabase
       .from(THREADS_TABLE)
       .select('*')
       .order('created_at', { ascending: false })
       .range(reset ? 0 : page * pageSize, (reset ? 0 : page * pageSize) + pageSize - 1);
+
     if (!error && data) {
       setRows(reset ? data : [...rows, ...data]);
       setPage(reset ? 1 : page + 1);
@@ -437,32 +440,54 @@ function ThreadsFeed() {
     setLoading(false);
   };
 
-  useEffect(()=>{ load(true); }, []);
+  useEffect(() => { load(true); }, []);
 
   return (
     <section id="threads" className="py-5">
       <Container>
         <h2 className="mb-4">Forum Threads {REMOTE_ENABLED ? '' : <Badge bg="warning" text="dark" className="ms-2">Demo</Badge>}</h2>
         <Row className="g-4">
-          {rows.map((r)=>(
-            <Col md={6} key={r.id}>
-              <Card className="shadow-sm h-100">
+          {loading && rows.length === 0 ? (
+            <Col className="text-center">
+              <Spinner animation="border" />
+              <p className="text-muted mt-2">Loading threads...</p>
+            </Col>
+          ) : rows.length === 0 ? (
+            <Col>
+              <Card className="text-center">
                 <Card.Body>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <Badge bg="dark" className="text-uppercase">{r.category}</Badge>
-                    <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
-                  </div>
-                  <Card.Title>{r.title}</Card.Title>
-                  <Card.Text className="text-muted">By <strong>{r.author_name || 'Anon'}</strong></Card.Text>
-                  <Card.Text>{r.body?.slice(0,140) || '—'}</Card.Text>
-                  <Button variant="outline-dark">Open</Button>
+                  <Card.Title>No threads yet!</Card.Title>
+                  <Card.Text className="text-muted">
+                    Be the first to start a conversation.
+                  </Card.Text>
                 </Card.Body>
               </Card>
             </Col>
-          ))}
+          ) : (
+            rows.map((r) => (
+              <Col md={6} key={r.id}>
+                <Card className="shadow-sm h-100">
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <Badge bg="dark" className="text-uppercase">{r.category}</Badge>
+                      <small className="text-muted">{new Date(r.created_at).toLocaleString()}</small>
+                    </div>
+                    <Card.Title>{r.title}</Card.Title>
+                    <Card.Text className="text-muted">By <strong>{r.author_name || 'Anon'}</strong></Card.Text>
+                    <Card.Text>{r.body?.slice(0, 140) || '—'}</Card.Text>
+                    <Button variant="outline-dark">Open</Button>
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))
+          )}
         </Row>
         <div className="text-center mt-4">
-          <Button variant="outline-dark" onClick={()=>load(false)} disabled={loading}>{loading ? 'Loading…' : 'Load more'}</Button>
+          {rows.length > 0 && (
+            <Button variant="outline-dark" onClick={() => load(false)} disabled={loading}>
+              {loading ? 'Loading…' : 'Load more'}
+            </Button>
+          )}
         </div>
       </Container>
     </section>
