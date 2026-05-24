@@ -278,11 +278,22 @@ function Profile({ user, onUpdate }) {
     const files = Array.from(e.target.files || []);
     setBusy(true);
     try {
-      const items = await Promise.all(files.map(async (f) => {
-        let url = URL.createObjectURL(f);
-        if (REMOTE_ENABLED) url = await uploadToSupabase(f);
-        return ({ url, name: f.name });
-      }));
+      const items = new Array(files.length);
+      const CONCURRENCY = 5;
+      let index = 0;
+
+      const worker = async () => {
+        while (index < files.length) {
+          const i = index++;
+          const f = files[i];
+          let url = URL.createObjectURL(f);
+          if (REMOTE_ENABLED) url = await uploadToSupabase(f);
+          items[i] = { url, name: f.name };
+        }
+      };
+
+      await Promise.all(Array.from({ length: Math.min(CONCURRENCY, files.length) }, worker));
+
       const next = [...media, ...items];
       setMedia(next);
       onUpdate({ ...user, media: next });
