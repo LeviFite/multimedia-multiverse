@@ -9,7 +9,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "vite build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "test": "vitest run"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
@@ -21,6 +22,8 @@
   },
   "devDependencies": {
     "gh-pages": "^6.1.1",
-    "vite": "^5.4.0"
+    "jsdom": "^29.1.1",
+    "vite": "^5.4.0",
+    "vitest": "^4.1.7"
   }
 }
