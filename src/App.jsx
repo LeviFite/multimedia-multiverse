@@ -77,7 +77,7 @@ function useLocalStorage(key, initial) {
   return [val, setVal];
 }
 
-function Avatar({ src, name, size = 56 }) {
+export function Avatar({ src, name, size = 56 }) {
   return (
     <div className="rounded-circle overflow-hidden border" style={{ width: size, height: size, background: '#ddd' }}>
       {src ? (
