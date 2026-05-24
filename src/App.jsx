@@ -290,8 +290,6 @@ function Profile({ user, onUpdate }) {
     finally { setBusy(false); }
   };
 
-  useEffect(()=>{ onUpdate({ ...user, bio }); }, [bio]);
-
   return (
     <section id="profile" className="py-5" style={{ background: THEME.surface }}>
       <Container>
@@ -311,7 +309,7 @@ function Profile({ user, onUpdate }) {
                 <div className="text-muted mb-3">{user.email}</div>
                 <Form.Group className="mb-3">
                   <Form.Label>Bio</Form.Label>
-                  <Form.Control as="textarea" rows={3} value={bio} onChange={(e)=>setBio(e.target.value)} placeholder="Tell the community about you…" />
+                  <Form.Control as="textarea" rows={3} value={bio} onChange={(e)=>setBio(e.target.value)} onBlur={() => onUpdate({ ...user, bio })} placeholder="Tell the community about you…" />
                 </Form.Group>
                 <div className="d-flex flex-wrap gap-2 align-items-center">
                   <Badge bg="light" text="dark">Theme: Pastel/Earth</Badge>
