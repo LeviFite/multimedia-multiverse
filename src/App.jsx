@@ -247,11 +247,19 @@ function Categories({ onOpen }) {
   );
 }
 
-function Profile({ user, onUpdate }) {
+export function Profile({ user, onUpdate }) {
   const [bio, setBio] = useState(user.bio || "I love building and sharing! ✨");
   const fileRef = useRef(null);
   const [media, setMedia] = useState(user.media || []);
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ displayName: user.displayName });
+
+  const handleSave = () => {
+    if (!form.displayName || !form.displayName.trim()) return;
+    onUpdate({ ...user, ...form });
+    setEditing(false);
+  };
 
   const uploadToSupabase = async (file) => {
     if (!REMOTE_ENABLED) return null;
@@ -307,7 +315,23 @@ function Profile({ user, onUpdate }) {
                 </div>
               </Col>
               <Col md={9}>
-                <h4 className="mb-1">{user.displayName}</h4>
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  {editing ? (
+                    <Form.Control
+                      value={form.displayName}
+                      onChange={(e) => setForm({ ...form, displayName: e.target.value })}
+                      placeholder="Display Name"
+                      data-testid="display-name-input"
+                    />
+                  ) : (
+                    <h4 className="mb-0">{user.displayName}</h4>
+                  )}
+                  {editing ? (
+                    <Button variant="success" size="sm" onClick={handleSave}>Save</Button>
+                  ) : (
+                    <Button variant="outline-secondary" size="sm" onClick={() => setEditing(true)}>Edit Profile</Button>
+                  )}
+                </div>
                 <div className="text-muted mb-3">{user.email}</div>
                 <Form.Group className="mb-3">
                   <Form.Label>Bio</Form.Label>
