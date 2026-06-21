@@ -270,7 +270,7 @@ function Profile({ user, onUpdate }) {
       let url = URL.createObjectURL(f);
       if (REMOTE_ENABLED) url = await uploadToSupabase(f);
       onUpdate({ ...user, avatar: url });
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error('Failed to upload avatar:', err); }
     finally { setBusy(false); }
   };
 
@@ -286,7 +286,7 @@ function Profile({ user, onUpdate }) {
       const next = [...media, ...items];
       setMedia(next);
       onUpdate({ ...user, media: next });
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error('Failed to upload media:', err); }
     finally { setBusy(false); }
   };
 
