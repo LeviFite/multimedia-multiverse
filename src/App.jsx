@@ -71,9 +71,9 @@ const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
 function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
-    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch (err) { console.error(err); return initial; }
   });
-  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }, [key, val]);
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(val)); } catch (err) { console.error(err); } }, [key, val]);
   return [val, setVal];
 }
 
