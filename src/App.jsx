@@ -417,8 +417,9 @@ function ThreadsFeed() {
     if (!REMOTE_ENABLED) {
       // fallback: map TOP_THREADS
       const start = reset ? 0 : rows.length;
+      const now = new Date().toISOString();
       const more = TOP_THREADS.slice(start, start + pageSize).map((t,i)=>({
-        id: `${start+i}`, title: t.title, body: 'Placeholder body', category: t.category, author_name: t.author, replies: t.replies, created_at: new Date().toISOString()
+        id: `${start+i}`, title: t.title, body: 'Placeholder body', category: t.category, author_name: t.author, replies: t.replies, created_at: now
       }));
       setRows(reset ? more : [...rows, ...more]);
       if (reset) setPage(1); else setPage(page+1);
