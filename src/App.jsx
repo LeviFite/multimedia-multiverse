@@ -290,7 +290,14 @@ function Profile({ user, onUpdate }) {
     finally { setBusy(false); }
   };
 
-  useEffect(()=>{ onUpdate({ ...user, bio }); }, [bio]);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (user.bio !== bio) {
+        onUpdate({ ...user, bio });
+      }
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [bio, user, onUpdate]);
 
   return (
     <section id="profile" className="py-5" style={{ background: THEME.surface }}>
