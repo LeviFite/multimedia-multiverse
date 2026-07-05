@@ -521,10 +521,6 @@ function TopThreads() {
   );
 }
 
-function CategorySection({ onOpen }) {
-  return <Categories onOpen={onOpen} />;
-}
-
 function App() {
   const [user, setUser] = useLocalStorage('demo_user', null);
   const [showAuth, setShowAuth] = useState(false);
@@ -622,7 +618,7 @@ function App() {
       <ThreadsFeed />
 
       {/* Category Grid + Downloads + Profile + Endless feed */}
-      <CategorySection onOpen={(c)=>setActiveCat(c)} />
+      <Categories onOpen={(c)=>setActiveCat(c)} />
       <Downloads />
       {user && <Profile user={user} onUpdate={setUser} />}
       <EndlessFeed />
