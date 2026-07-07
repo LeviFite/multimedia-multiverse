@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, InputGroup, Dropdown, Spinner, Alert } from 'react-bootstrap';
+import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, Dropdown, Spinner, Alert } from 'react-bootstrap';
 import { MessageSquare, Film, Music2, Image as ImageIcon, Gamepad2, BookOpen, Cpu, Globe2, HelpCircle, Briefcase, Home, Download, User2, Layers, BellRing } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
