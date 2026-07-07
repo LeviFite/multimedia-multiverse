@@ -521,33 +521,6 @@ function ThreadsFeed() {
   );
 }
 
-function TopThreads() {
-  return (
-    <section id="threads-top" className="py-5">
-      <Container>
-        <h2 className="mb-4">Top Threads</h2>
-        <Row className="g-4">
-          {TOP_THREADS.map((t, idx) => (
-            <Col md={6} key={idx}>
-              <Card className="shadow-sm h-100">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <Badge bg="dark" className="text-uppercase">{t.category}</Badge>
-                    <small className="text-muted">{t.replies} replies</small>
-                  </div>
-                  <Card.Title>{t.title}</Card.Title>
-                  <Card.Text className="text-muted">By <strong>{t.author}</strong> • Placeholder text.</Card.Text>
-                  <Button variant="outline-dark">Open thread</Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
-    </section>
-  );
-}
-
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
