@@ -364,7 +364,7 @@ function Profile({ user, onUpdate }) {
 // --- Threads CRUD (Supabase or local fallback) ---
 const THREADS_TABLE = 'threads';
 
-function NewThreadForm({ user, onCreated }) {
+export function NewThreadForm({ user, onCreated }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0].key);
