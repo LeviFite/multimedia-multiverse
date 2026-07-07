@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, InputGroup, Dropdown, Spinner, Alert } from 'react-bootstrap';
+import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, Dropdown, Spinner, Alert } from 'react-bootstrap';
 import { MessageSquare, Film, Music2, Image as ImageIcon, Gamepad2, BookOpen, Cpu, Globe2, HelpCircle, Briefcase, Home, Download, User2, Layers, BellRing } from 'lucide-react';
 import { createClient } from '@supabase/supabase-js';
 
@@ -67,9 +67,11 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
+const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
+export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
-function useLocalStorage(key, initial) {
+export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
     try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
   });
@@ -113,8 +115,28 @@ function AuthModals({ show, onHide, onLogin }) {
         const user = { id: u.id, email: u.email, displayName: u.user_metadata?.display_name || u.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
         onLogin(user);
       } else {
-        const user = { id: fakeHash(form.email), email: form.email, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
-        onLogin(user);
+        let db = {};
+        try {
+          const stored = localStorage.getItem('demo_users_db');
+          if (stored) db = JSON.parse(stored);
+        } catch (e) {}
+
+        if (isSignup) {
+          if (db[form.email]) throw new Error('Email already taken');
+          const user = { id: fakeHash(form.email), email: form.email, password: form.password, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
+          db[form.email] = user;
+          localStorage.setItem('demo_users_db', JSON.stringify(db));
+
+          const { password, ...sessionUser } = user;
+          onLogin(sessionUser);
+        } else {
+          const user = db[form.email];
+          if (!user || user.password !== form.password) {
+            throw new Error('Invalid login credentials');
+          }
+          const { password, ...sessionUser } = user;
+          onLogin(sessionUser);
+        }
       }
       onHide();
     } catch (e) {
@@ -166,6 +188,11 @@ function AuthModals({ show, onHide, onLogin }) {
 }
 
 function CategoryModal({ category, show, onHide }) {
+  const filteredThreads = useMemo(() => {
+    if (!category) return [];
+    return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8);
+  }, [category?.key]);
+
   if (!category) return null;
   const Icon = category.icon;
   return (
@@ -175,7 +202,7 @@ function CategoryModal({ category, show, onHide }) {
       </Modal.Header>
       <Modal.Body style={{ background: THEME.surface }}>
         <Row className="g-4">
-          {TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8).map((t, idx) => (
+          {filteredThreads.map((t, idx) => (
             <Col md={6} key={idx}>
               <Card className="shadow-sm h-100" style={{ borderColor: category.color }}>
                 <Card.Body>
@@ -270,7 +297,7 @@ function Profile({ user, onUpdate }) {
       let url = URL.createObjectURL(f);
       if (REMOTE_ENABLED) url = await uploadToSupabase(f);
       onUpdate({ ...user, avatar: url });
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error('Failed to upload avatar:', err); }
     finally { setBusy(false); }
   };
 
@@ -286,7 +313,7 @@ function Profile({ user, onUpdate }) {
       const next = [...media, ...items];
       setMedia(next);
       onUpdate({ ...user, media: next });
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error('Failed to upload media:', err); }
     finally { setBusy(false); }
   };
 
@@ -358,7 +385,7 @@ function Profile({ user, onUpdate }) {
 // --- Threads CRUD (Supabase or local fallback) ---
 const THREADS_TABLE = 'threads';
 
-function NewThreadForm({ user, onCreated }) {
+export function NewThreadForm({ user, onCreated }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0].key);
@@ -519,6 +546,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+function CategorySection({ onOpen }) {
+  return <Categories onOpen={onOpen} />;
 }
 
 function App() {
