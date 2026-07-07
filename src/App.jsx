@@ -67,7 +67,8 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
+export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
 function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -166,6 +167,11 @@ function AuthModals({ show, onHide, onLogin }) {
 }
 
 function CategoryModal({ category, show, onHide }) {
+  const filteredThreads = useMemo(() => {
+    if (!category) return [];
+    return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8);
+  }, [category?.key]);
+
   if (!category) return null;
   const Icon = category.icon;
   return (
@@ -175,7 +181,7 @@ function CategoryModal({ category, show, onHide }) {
       </Modal.Header>
       <Modal.Body style={{ background: THEME.surface }}>
         <Row className="g-4">
-          {TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8).map((t, idx) => (
+          {filteredThreads.map((t, idx) => (
             <Col md={6} key={idx}>
               <Card className="shadow-sm h-100" style={{ borderColor: category.color }}>
                 <Card.Body>
