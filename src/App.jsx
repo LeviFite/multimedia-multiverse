@@ -68,8 +68,10 @@ const DOWNLOADS = [
 ];
 
 const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
+const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
+export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
-function useLocalStorage(key, initial) {
+export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
     try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
   });
@@ -186,6 +188,11 @@ function AuthModals({ show, onHide, onLogin }) {
 }
 
 function CategoryModal({ category, show, onHide }) {
+  const filteredThreads = useMemo(() => {
+    if (!category) return [];
+    return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8);
+  }, [category?.key]);
+
   if (!category) return null;
   const Icon = category.icon;
   return (
@@ -195,7 +202,7 @@ function CategoryModal({ category, show, onHide }) {
       </Modal.Header>
       <Modal.Body style={{ background: THEME.surface }}>
         <Row className="g-4">
-          {TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8).map((t, idx) => (
+          {filteredThreads.map((t, idx) => (
             <Col md={6} key={idx}>
               <Card className="shadow-sm h-100" style={{ borderColor: category.color }}>
                 <Card.Body>
@@ -378,7 +385,7 @@ function Profile({ user, onUpdate }) {
 // --- Threads CRUD (Supabase or local fallback) ---
 const THREADS_TABLE = 'threads';
 
-function NewThreadForm({ user, onCreated }) {
+export function NewThreadForm({ user, onCreated }) {
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState(CATEGORIES[0].key);
