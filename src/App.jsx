@@ -67,7 +67,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
 
 function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -113,8 +113,28 @@ function AuthModals({ show, onHide, onLogin }) {
         const user = { id: u.id, email: u.email, displayName: u.user_metadata?.display_name || u.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
         onLogin(user);
       } else {
-        const user = { id: fakeHash(form.email), email: form.email, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
-        onLogin(user);
+        let db = {};
+        try {
+          const stored = localStorage.getItem('demo_users_db');
+          if (stored) db = JSON.parse(stored);
+        } catch (e) {}
+
+        if (isSignup) {
+          if (db[form.email]) throw new Error('Email already taken');
+          const user = { id: fakeHash(form.email), email: form.email, password: form.password, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
+          db[form.email] = user;
+          localStorage.setItem('demo_users_db', JSON.stringify(db));
+
+          const { password, ...sessionUser } = user;
+          onLogin(sessionUser);
+        } else {
+          const user = db[form.email];
+          if (!user || user.password !== form.password) {
+            throw new Error('Invalid login credentials');
+          }
+          const { password, ...sessionUser } = user;
+          onLogin(sessionUser);
+        }
       }
       onHide();
     } catch (e) {
