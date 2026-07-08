@@ -282,7 +282,8 @@ function Profile({ user, onUpdate }) {
 
   const uploadToSupabase = async (file) => {
     if (!REMOTE_ENABLED) return null;
-    const path = `${user.id}/${Date.now()}-${file.name}`;
+    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const path = `${user.id}/${Date.now()}-${safeName}`;
     const { error } = await supabase.storage.from('media').upload(path, file, { upsert: false });
     if (error) throw error;
     const { data } = supabase.storage.from('media').getPublicUrl(path);
