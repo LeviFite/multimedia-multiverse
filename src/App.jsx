@@ -73,9 +73,9 @@ export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
-    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
+    try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch (error) { console.warn("Error reading from localStorage", error); return initial; }
   });
-  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }, [key, val]);
+  useEffect(() => { try { localStorage.setItem(key, JSON.stringify(val)); } catch (error) { console.warn("Error writing to localStorage", error); } }, [key, val]);
   return [val, setVal];
 }
 
