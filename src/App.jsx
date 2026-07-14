@@ -67,9 +67,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -282,7 +280,8 @@ function Profile({ user, onUpdate }) {
 
   const uploadToSupabase = async (file) => {
     if (!REMOTE_ENABLED) return null;
-    const path = `${user.id}/${Date.now()}-${file.name}`;
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const path = `${user.id}/${Date.now()}-${sanitizedName}`;
     const { error } = await supabase.storage.from('media').upload(path, file, { upsert: false });
     if (error) throw error;
     const { data } = supabase.storage.from('media').getPublicUrl(path);
@@ -546,6 +545,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
