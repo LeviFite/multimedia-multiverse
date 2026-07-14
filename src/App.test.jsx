@@ -62,9 +62,10 @@ describe('useLocalStorage', () => {
     // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
 
+import { fakeHash } from './App';
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {
     const hash = fakeHash('test@example.com');

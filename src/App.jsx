@@ -67,8 +67,6 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
@@ -546,6 +544,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
