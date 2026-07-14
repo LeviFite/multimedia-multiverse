@@ -67,9 +67,14 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+
+const hashPassword = async (password) => {
+  const msgUint8 = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+};
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -123,7 +128,8 @@ function AuthModals({ show, onHide, onLogin }) {
 
         if (isSignup) {
           if (db[form.email]) throw new Error('Email already taken');
-          const user = { id: fakeHash(form.email), email: form.email, password: form.password, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
+          const hashedPassword = await hashPassword(form.password);
+          const user = { id: fakeHash(form.email), email: form.email, password: hashedPassword, displayName: form.displayName || form.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
           db[form.email] = user;
           localStorage.setItem('demo_users_db', JSON.stringify(db));
 
@@ -131,7 +137,8 @@ function AuthModals({ show, onHide, onLogin }) {
           onLogin(sessionUser);
         } else {
           const user = db[form.email];
-          if (!user || user.password !== form.password) {
+          const hashedPassword = await hashPassword(form.password);
+          if (!user || user.password !== hashedPassword) {
             throw new Error('Invalid login credentials');
           }
           const { password, ...sessionUser } = user;
@@ -546,6 +553,7 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
