@@ -62,8 +62,11 @@ describe('useLocalStorage', () => {
     // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
+
+import { render, screen } from '@testing-library/react';
+import { fakeHash, Downloads } from './App';
 
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {
@@ -99,5 +102,28 @@ describe('fakeHash', () => {
     const hash = fakeHash('test_unicode_✨');
     expect(typeof hash).toBe('string');
     expect(hash.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Downloads', () => {
+  it('should render the "Downloads" heading', () => {
+    render(<Downloads />);
+    expect(screen.getByRole('heading', { name: /Downloads/i })).toBeInTheDocument();
+  });
+
+  it('should render the predefined download items and their sizes', () => {
+    render(<Downloads />);
+
+    // Check for names
+    expect(screen.getByText('Community Guidelines.pdf')).toBeInTheDocument();
+    expect(screen.getByText('Media Pack.zip')).toBeInTheDocument();
+    expect(screen.getByText('Brand Palette (ASE).ase')).toBeInTheDocument();
+    expect(screen.getByText('Starter Templates.zip')).toBeInTheDocument();
+
+    // Check for sizes
+    expect(screen.getByText('320 KB')).toBeInTheDocument();
+    expect(screen.getByText('14.2 MB')).toBeInTheDocument();
+    expect(screen.getByText('120 KB')).toBeInTheDocument();
+    expect(screen.getByText('6.3 MB')).toBeInTheDocument();
   });
 });
