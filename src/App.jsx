@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, Dropdown, Spinner, Alert } from 'react-bootstrap';
@@ -67,9 +67,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -277,7 +275,7 @@ function Categories({ onOpen }) {
 function Profile({ user, onUpdate }) {
   const [bio, setBio] = useState(user.bio || "I love building and sharing! ✨");
   const fileRef = useRef(null);
-  const [media, setMedia] = useState(user.media || []);
+  const [media, setMedia] = useState(() => (user.media || []).map(m => ('isVideo' in m ? m : { ...m, isVideo: !!(m.url && m.url.match(/\.mp4|video\//)) })));
   const [busy, setBusy] = useState(false);
 
   const uploadToSupabase = async (file) => {
@@ -308,7 +306,7 @@ function Profile({ user, onUpdate }) {
       const items = await Promise.all(files.map(async (f) => {
         let url = URL.createObjectURL(f);
         if (REMOTE_ENABLED) url = await uploadToSupabase(f);
-        return ({ url, name: f.name });
+        return ({ url, name: f.name, isVideo: !!(f.type?.startsWith('video/') || f.name.match(/\.mp4/i)) });
       }));
       const next = [...media, ...items];
       setMedia(next);
@@ -365,7 +363,7 @@ function Profile({ user, onUpdate }) {
               {media.map((m, idx) => (
                 <Col key={idx} xs={6} md={4} lg={3}>
                   <Card className="h-100">
-                    {m.url.match(/\.mp4|video\//) ? (
+                    {m.isVideo ? (
                       <video src={m.url} controls style={{ width:'100%', borderTopLeftRadius:'.25rem', borderTopRightRadius:'.25rem' }} />
                     ) : (
                       <Card.Img variant="top" src={m.url} alt={m.name} />
@@ -546,6 +544,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
