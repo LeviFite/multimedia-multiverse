@@ -67,11 +67,9 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join("")).slice(0, 10);
 
-export function useLocalStorage(key, initial) {
+function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
     try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : initial; } catch { return initial; }
   });
@@ -546,6 +544,7 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
@@ -711,6 +710,7 @@ function EndlessFeed() {
   );
 }
 
+export { useLocalStorage };
 export default function Root() {
   return <App/>;
 }
