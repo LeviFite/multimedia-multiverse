@@ -67,9 +67,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -294,8 +292,12 @@ function Profile({ user, onUpdate }) {
     if (!f) return;
     try {
       setBusy(true);
-      let url = URL.createObjectURL(f);
-      if (REMOTE_ENABLED) url = await uploadToSupabase(f);
+      let url;
+      if (REMOTE_ENABLED) {
+        url = await uploadToSupabase(f);
+      } else {
+        url = URL.createObjectURL(f);
+      }
       onUpdate({ ...user, avatar: url });
     } catch (err) { console.error('Failed to upload avatar:', err); }
     finally { setBusy(false); }
@@ -306,8 +308,12 @@ function Profile({ user, onUpdate }) {
     setBusy(true);
     try {
       const items = await Promise.all(files.map(async (f) => {
-        let url = URL.createObjectURL(f);
-        if (REMOTE_ENABLED) url = await uploadToSupabase(f);
+        let url;
+        if (REMOTE_ENABLED) {
+          url = await uploadToSupabase(f);
+        } else {
+          url = URL.createObjectURL(f);
+        }
         return ({ url, name: f.name });
       }));
       const next = [...media, ...items];
@@ -546,6 +552,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
