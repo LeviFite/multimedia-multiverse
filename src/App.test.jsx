@@ -1,12 +1,10 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useLocalStorage } from './App';
+import { useLocalStorage, fakeHash } from './App';
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
-    // Clear localStorage before each test
     localStorage.clear();
-    // Restore mocks
     vi.restoreAllMocks();
   });
 
@@ -37,7 +35,6 @@ describe('useLocalStorage', () => {
   });
 
   it('should return initial value and handle error when localStorage.getItem throws', () => {
-    // Mock getItem to throw an error
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new Error('localStorage is disabled');
     });
@@ -48,7 +45,6 @@ describe('useLocalStorage', () => {
   });
 
   it('should handle error when localStorage.setItem throws', () => {
-    // Mock setItem to throw an error
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('localStorage quota exceeded');
     });
@@ -59,11 +55,10 @@ describe('useLocalStorage', () => {
       result.current[1]('new-value');
     });
 
-    // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
 
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {
