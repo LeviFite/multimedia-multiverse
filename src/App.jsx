@@ -60,6 +60,12 @@ const TOP_THREADS = [
   { title: 'World news catch‑up', author: 'MapMaker', replies: 33, category: 'world' },
 ];
 
+const THREADS_BY_CATEGORY = TOP_THREADS.reduce((acc, thread) => {
+  if (!acc[thread.category]) acc[thread.category] = [];
+  acc[thread.category].push(thread);
+  return acc;
+}, {});
+
 const DOWNLOADS = [
   { name: 'Community Guidelines.pdf', size: '320 KB' },
   { name: 'Media Pack.zip', size: '14.2 MB' },
@@ -67,9 +73,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -190,7 +194,10 @@ function AuthModals({ show, onHide, onLogin }) {
 function CategoryModal({ category, show, onHide }) {
   const filteredThreads = useMemo(() => {
     if (!category) return [];
-    return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8);
+    if (category.key === 'general') {
+      return TOP_THREADS.slice(0, 8);
+    }
+    return (THREADS_BY_CATEGORY[category.key] || []).slice(0, 8);
   }, [category?.key]);
 
   if (!category) return null;
@@ -546,6 +553,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }

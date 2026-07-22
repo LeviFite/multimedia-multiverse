@@ -1,47 +1,45 @@
-// A simple benchmark without full React rendering to prove the cost of filter and slice
 const { performance } = require('perf_hooks');
 
+const categories = ['general', 'photos', 'movies', 'learn', 'gaming', 'music', 'work', 'tech', 'help', 'world'];
 const TOP_THREADS = Array.from({ length: 100000 }, (_, i) => ({
+  id: i,
   title: `Thread ${i}`,
-  category: ['general', 'photos', 'movies', 'learn', 'gaming', 'music', 'work', 'tech', 'help', 'world'][i % 10],
+  category: categories[Math.floor(Math.random() * categories.length)],
 }));
 
-const category = { key: 'movies' };
-const iterations = 1000;
-
-function inlineApproach() {
-  return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0, 8);
-}
-
-// Memoized approach simulates what React does: only calculating once if inputs don't change
-let memoizedResult = null;
-let lastKey = null;
-
-function memoizedApproach(catKey) {
-  if (lastKey === catKey) {
-    return memoizedResult;
+// baseline
+function runBaseline() {
+  const start = performance.now();
+  for (let i = 0; i < 100; i++) {
+    for (const cat of categories) {
+      TOP_THREADS.filter(t => t.category === cat || cat === 'general').slice(0, 8);
+    }
   }
-  lastKey = catKey;
-  memoizedResult = TOP_THREADS.filter(t => t.category === catKey || catKey === 'general').slice(0, 8);
-  return memoizedResult;
+  const end = performance.now();
+  console.log(`Baseline: ${end - start} ms`);
 }
 
-console.log("Measuring Inline Approach...");
-const startInline = performance.now();
-for (let i = 0; i < iterations; i++) {
-  inlineApproach();
-}
-const endInline = performance.now();
-const timeInline = endInline - startInline;
-console.log(`Inline approach took: ${timeInline.toFixed(2)}ms`);
+// optimized
+const THREADS_BY_CATEGORY = TOP_THREADS.reduce((acc, thread) => {
+  if (!acc[thread.category]) acc[thread.category] = [];
+  acc[thread.category].push(thread);
+  return acc;
+}, {});
 
-console.log("\nMeasuring Memoized Approach...");
-const startMemo = performance.now();
-for (let i = 0; i < iterations; i++) {
-  memoizedApproach(category.key);
+function runOptimized() {
+  const start = performance.now();
+  for (let i = 0; i < 100; i++) {
+    for (const cat of categories) {
+      if (cat === 'general') {
+        TOP_THREADS.slice(0, 8);
+      } else {
+        (THREADS_BY_CATEGORY[cat] || []).slice(0, 8);
+      }
+    }
+  }
+  const end = performance.now();
+  console.log(`Optimized: ${end - start} ms`);
 }
-const endMemo = performance.now();
-const timeMemo = endMemo - startMemo;
-console.log(`Memoized approach took: ${timeMemo.toFixed(2)}ms`);
 
-console.log(`\nImprovement: ${((timeInline - timeMemo) / timeInline * 100).toFixed(2)}% faster`);
+runBaseline();
+runOptimized();

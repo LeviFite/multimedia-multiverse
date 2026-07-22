@@ -9,7 +9,6 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "test": "vitest run --environment jsdom"
     "test": "vitest run"
   },
   "dependencies": {
@@ -29,6 +28,5 @@
     "jsdom": "^29.1.1",
     "vite": "^5.4.0",
     "vitest": "^4.1.10"
-    "vitest": "^4.1.9"
   }
 }
