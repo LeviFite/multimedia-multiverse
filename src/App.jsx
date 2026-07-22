@@ -67,8 +67,6 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
@@ -274,6 +272,72 @@ function Categories({ onOpen }) {
   );
 }
 
+
+function ProfileHeader({ user, bio, setBio, busy, handleAvatar, fileRef }) {
+  return (
+    <Card className="shadow-sm">
+      <Card.Body>
+        <Row className="g-4 align-items-center">
+          <Col md={3} className="text-center">
+            <Avatar src={user.avatar} name={user.displayName} size={96} />
+            <div className="mt-3 d-grid gap-2">
+              <Button variant="outline-dark" onClick={() => fileRef.current?.click()} disabled={busy}>
+                {busy ? 'Uploading…' : 'Upload avatar'}
+              </Button>
+              <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatar} />
+            </div>
+          </Col>
+          <Col md={9}>
+            <h4 className="mb-1">{user.displayName}</h4>
+            <div className="text-muted mb-3">{user.email}</div>
+            <Form.Group className="mb-3">
+              <Form.Label>Bio</Form.Label>
+              <Form.Control as="textarea" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Tell the community about you…" />
+            </Form.Group>
+            <div className="d-flex flex-wrap gap-2 align-items-center">
+              <Badge bg="light" text="dark">Theme: Pastel/Earth</Badge>
+              <Badge bg="secondary">Customization</Badge>
+              {REMOTE_ENABLED ? <Badge bg="success">Cloud uploads</Badge> : <Badge bg="warning" text="dark">Local demo</Badge>}
+            </div>
+          </Col>
+        </Row>
+      </Card.Body>
+    </Card>
+  );
+}
+
+function ProfileMediaGallery({ media, handleMedia }) {
+  return (
+    <Card className="shadow-sm mt-4">
+      <Card.Body>
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="mb-0">Your Media</h5>
+          <div>
+            <Form.Label className="btn btn-dark mb-0">Upload media
+              <Form.Control type="file" accept="image/*,video/*" multiple hidden onChange={handleMedia} />
+            </Form.Label>
+          </div>
+        </div>
+        <Row className="g-3">
+          {media.length === 0 && <div className="text-muted">No media yet — upload images or videos to showcase on your profile.</div>}
+          {media.map((m, idx) => (
+            <Col key={idx} xs={6} md={4} lg={3}>
+              <Card className="h-100">
+                {m.url.match(/\.mp4|video\//) ? (
+                  <video src={m.url} controls style={{ width:'100%', borderTopLeftRadius:'.25rem', borderTopRightRadius:'.25rem' }} />
+                ) : (
+                  <Card.Img variant="top" src={m.url} alt={m.name} />
+                )}
+                <Card.Body className="py-2"><small className="text-muted">{m.name}</small></Card.Body>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Card.Body>
+    </Card>
+  );
+}
+
 function Profile({ user, onUpdate }) {
   const [bio, setBio] = useState(user.bio || "I love building and sharing! ✨");
   const fileRef = useRef(null);
@@ -323,60 +387,8 @@ function Profile({ user, onUpdate }) {
     <section id="profile" className="py-5" style={{ background: THEME.surface }}>
       <Container>
         <h2 className="mb-4">Your Profile</h2>
-        <Card className="shadow-sm">
-          <Card.Body>
-            <Row className="g-4 align-items-center">
-              <Col md={3} className="text-center">
-                <Avatar src={user.avatar} name={user.displayName} size={96} />
-                <div className="mt-3 d-grid gap-2">
-                  <Button variant="outline-dark" onClick={()=>fileRef.current?.click()} disabled={busy}>{busy ? 'Uploading…' : 'Upload avatar'}</Button>
-                  <input ref={fileRef} type="file" accept="image/*" hidden onChange={handleAvatar} />
-                </div>
-              </Col>
-              <Col md={9}>
-                <h4 className="mb-1">{user.displayName}</h4>
-                <div className="text-muted mb-3">{user.email}</div>
-                <Form.Group className="mb-3">
-                  <Form.Label>Bio</Form.Label>
-                  <Form.Control as="textarea" rows={3} value={bio} onChange={(e)=>setBio(e.target.value)} placeholder="Tell the community about you…" />
-                </Form.Group>
-                <div className="d-flex flex-wrap gap-2 align-items-center">
-                  <Badge bg="light" text="dark">Theme: Pastel/Earth</Badge>
-                  <Badge bg="secondary">Customization</Badge>
-                  {REMOTE_ENABLED ? <Badge bg="success">Cloud uploads</Badge> : <Badge bg="warning" text="dark">Local demo</Badge>}
-                </div>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-
-        <Card className="shadow-sm mt-4">
-          <Card.Body>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="mb-0">Your Media</h5>
-              <div>
-                <Form.Label className="btn btn-dark mb-0">Upload media
-                  <Form.Control type="file" accept="image/*,video/*" multiple hidden onChange={handleMedia} />
-                </Form.Label>
-              </div>
-            </div>
-            <Row className="g-3">
-              {media.length === 0 && <div className="text-muted">No media yet — upload images or videos to showcase on your profile.</div>}
-              {media.map((m, idx) => (
-                <Col key={idx} xs={6} md={4} lg={3}>
-                  <Card className="h-100">
-                    {m.url.match(/\.mp4|video\//) ? (
-                      <video src={m.url} controls style={{ width:'100%', borderTopLeftRadius:'.25rem', borderTopRightRadius:'.25rem' }} />
-                    ) : (
-                      <Card.Img variant="top" src={m.url} alt={m.name} />
-                    )}
-                    <Card.Body className="py-2"><small className="text-muted">{m.name}</small></Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Card.Body>
-        </Card>
+        <ProfileHeader user={user} bio={bio} setBio={setBio} busy={busy} handleAvatar={handleAvatar} fileRef={fileRef} />
+        <ProfileMediaGallery media={media} handleMedia={handleMedia} />
       </Container>
     </section>
   );
@@ -546,6 +558,8 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
+
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
