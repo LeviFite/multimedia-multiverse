@@ -62,8 +62,11 @@ describe('useLocalStorage', () => {
     // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
+
+import { fakeHash, Profile } from './App';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {
@@ -99,5 +102,44 @@ describe('fakeHash', () => {
     const hash = fakeHash('test_unicode_✨');
     expect(typeof hash).toBe('string');
     expect(hash.length).toBeGreaterThan(0);
+  });
+});
+
+describe('Profile', () => {
+  it('handles avatar upload failure', async () => {
+    const user = {
+      id: '1',
+      displayName: 'Test User',
+      email: 'test@example.com',
+      avatar: '',
+      bio: '',
+      media: []
+    };
+
+    const mockError = new Error('Upload failed');
+    global.URL.createObjectURL = vi.fn().mockImplementation(() => {
+      throw mockError;
+    });
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    const { container } = render(<Profile user={user} onUpdate={vi.fn()} />);
+
+    // Find the avatar file input
+    // The first file input is for avatar: <input type="file" accept="image/*" ... />
+    // The second is for media: <input type="file" accept="image/*,video/*" multiple ... />
+    const avatarInput = container.querySelector('input[type="file"][accept="image/*"]:not([multiple])');
+
+    expect(avatarInput).not.toBeNull();
+
+    const file = new File(['hello'], 'hello.png', { type: 'image/png' });
+
+    fireEvent.change(avatarInput, { target: { files: [file] } });
+
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to upload avatar:', mockError);
+    });
+
+    consoleSpy.mockRestore();
   });
 });
