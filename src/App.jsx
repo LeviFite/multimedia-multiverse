@@ -67,8 +67,6 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
@@ -115,6 +113,9 @@ function AuthModals({ show, onHide, onLogin }) {
         const user = { id: u.id, email: u.email, displayName: u.user_metadata?.display_name || u.email.split('@')[0], avatar: '', bio: '', subscribed: false, media: [] };
         onLogin(user);
       } else {
+        // Yield to event loop to allow UI updates (e.g. setBusy) before blocking
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
         let db = {};
         try {
           const stored = localStorage.getItem('demo_users_db');
@@ -546,6 +547,7 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }

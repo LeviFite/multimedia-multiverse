@@ -1,4 +1,9 @@
-import { renderHook, act } from '@testing-library/react';
+const fs = require('fs');
+let code = fs.readFileSync('src/App.test.jsx', 'utf8');
+
+// The file looks malformed around line 64 where they appended another describe block
+// Let's just fix the whole file
+let fixedCode = `import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useLocalStorage, fakeHash } from './App';
 
@@ -96,3 +101,6 @@ describe('fakeHash', () => {
     expect(hash.length).toBeGreaterThan(0);
   });
 });
+`;
+
+fs.writeFileSync('src/App.test.jsx', fixedCode);

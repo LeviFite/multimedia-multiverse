@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="test">Test</button>
+  <div id="status">Idle</div>
+  <script>
+    const mockStorage = {};
+    const db = {};
+    for (let i = 0; i < 200000; i++) {
+      db[`user${i}@example.com`] = { id: `hash${i}`, email: `user${i}@example.com`, password: 'password123', displayName: `User${i}`, avatar: '', bio: '', subscribed: false, media: [] };
+    }
+    const stored = JSON.stringify(db);
+    localStorage.setItem('demo_users_db', stored);
+
+    document.getElementById('test').addEventListener('click', async () => {
+      document.getElementById('status').innerText = 'Loading...';
+
+      const start = performance.now();
+      let parsedDb = {};
+      const s = localStorage.getItem('demo_users_db');
+      if (s) parsedDb = JSON.parse(s);
+      const end = performance.now();
+      console.log(`Sync load took: ${end - start} ms`);
+
+      document.getElementById('status').innerText = 'Done';
+    });
+  </script>
+</body>
+</html>

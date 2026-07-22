@@ -1,4 +1,5 @@
 const { performance } = require('perf_hooks');
+const fs = require('fs');
 
 // Mock localStorage
 const mockStorage = {};
