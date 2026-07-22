@@ -1,7 +1,5 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
@@ -11,10 +9,7 @@ export default defineConfig({
     env: {
       VITE_SUPABASE_URL: 'http://mock-url',
       VITE_SUPABASE_ANON_KEY: 'mock-key'
-    }
+    },
+    globals: true
   },
 });
-    globals: true,
-    setupFiles: './setupTests.js',
-  },
-})
