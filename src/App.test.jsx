@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useLocalStorage } from './App';
+import { useLocalStorage, fakeHash } from './App';
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -62,8 +62,8 @@ describe('useLocalStorage', () => {
     // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
 
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {

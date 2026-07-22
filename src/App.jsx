@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Modal, Button, Form, Navbar, Nav, Container, Row, Col, Card, Badge, Dropdown, Spinner, Alert } from 'react-bootstrap';
@@ -60,6 +60,12 @@ const TOP_THREADS = [
   { title: 'World news catch‑up', author: 'MapMaker', replies: 33, category: 'world' },
 ];
 
+const TOP_THREADS_INDEXED = {};
+TOP_THREADS.forEach((t, i) => {
+  if (!TOP_THREADS_INDEXED[t.category]) TOP_THREADS_INDEXED[t.category] = [];
+  TOP_THREADS_INDEXED[t.category].push({ thread: t, index: i });
+});
+
 const DOWNLOADS = [
   { name: 'Community Guidelines.pdf', size: '320 KB' },
   { name: 'Media Pack.zip', size: '14.2 MB' },
@@ -67,9 +73,7 @@ const DOWNLOADS = [
   { name: 'Starter Templates.zip', size: '6.3 MB' },
 ];
 
-const fakeHash = (s) => btoa(String.fromCharCode(...new TextEncoder().encode(s))).slice(0, 10);
-const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
-export const fakeHash = (s) => btoa(unescape(encodeURIComponent(s))).slice(0, 10);
+export const fakeHash = (s) => btoa(Array.from(new TextEncoder().encode(s), b => String.fromCharCode(b)).join('')).slice(0, 10);
 
 export function useLocalStorage(key, initial) {
   const [val, setVal] = useState(() => {
@@ -190,7 +194,17 @@ function AuthModals({ show, onHide, onLogin }) {
 function CategoryModal({ category, show, onHide }) {
   const filteredThreads = useMemo(() => {
     if (!category) return [];
-    return TOP_THREADS.filter(t => t.category === category.key || category.key === 'general').slice(0,8);
+
+    // Original condition was: t.category === category.key || category.key === 'general'
+    // If the category selected is 'general', ALL threads from TOP_THREADS are allowed.
+    // If the category selected is NOT 'general', ONLY threads matching that category are allowed.
+    if (category.key === 'general') {
+      return TOP_THREADS.slice(0, 8);
+    }
+
+    // For specific categories, we use the index for O(1) lookup
+    const listCat = TOP_THREADS_INDEXED[category.key] || [];
+    return listCat.slice(0, 8).map(x => x.thread);
   }, [category?.key]);
 
   if (!category) return null;
@@ -546,6 +560,7 @@ function TopThreads() {
       </Container>
     </section>
   );
+}
 function CategorySection({ onOpen }) {
   return <Categories onOpen={onOpen} />;
 }
