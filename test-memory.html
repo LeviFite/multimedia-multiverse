@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+  let objectUrls = [];
+  function createBlobs() {
+    for (let i = 0; i < 1000; i++) {
+      let b = new Blob([new ArrayBuffer(1024 * 1024)]); // 1MB blob
+      objectUrls.push(URL.createObjectURL(b));
+    }
+    console.log("Created 1000 object URLs. Check memory.");
+  }
+  function cleanup() {
+    for (let url of objectUrls) {
+      URL.revokeObjectURL(url);
+    }
+    objectUrls = [];
+    console.log("Revoked object URLs.");
+  }
+</script>
+<button onclick="createBlobs()">Create</button>
+<button onclick="cleanup()">Cleanup</button>
+</body>
+</html>
