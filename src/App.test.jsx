@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { useLocalStorage } from './App';
+import { useLocalStorage, fakeHash } from './App';
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -19,13 +19,19 @@ describe('useLocalStorage', () => {
     expect(result.current[0]).toBe('initial');
   });
 
-  it('should return parsed value when value exists in localStorage', () => {
+  it('should return parsed value when value exists in localStorage', async () => {
     localStorage.setItem('testKey', JSON.stringify('stored'));
-    const { result } = renderHook(() => useLocalStorage('testKey', 'initial'));
+    let result;
+
+    // Initial render sets state to 'initial' but act will process effects
+    await act(async () => {
+      result = renderHook(() => useLocalStorage('testKey', 'initial')).result;
+    });
+
     expect(result.current[0]).toBe('stored');
   });
 
-  it('should update localStorage when setter is called', () => {
+  it('should update localStorage when setter is called', async () => {
     const { result } = renderHook(() => useLocalStorage('testKey', 'initial'));
 
     act(() => {
@@ -62,8 +68,8 @@ describe('useLocalStorage', () => {
     // The state should still update in memory even if localStorage fails
     expect(result.current[0]).toBe('new-value');
     expect(Storage.prototype.setItem).toHaveBeenCalledWith('testKey', '"new-value"');
-import { describe, it, expect } from 'vitest';
-import { fakeHash } from './App';
+  });
+});
 
 describe('fakeHash', () => {
   it('should generate a string hash of max length 10', () => {
